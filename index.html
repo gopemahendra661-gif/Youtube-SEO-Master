@@ -37,12 +37,6 @@
             border-radius: 8px;
             margin: 0 auto;
         }
-        .dark .ad-banner {
-            border-color: #7c3aed;
-            background: #1e293b;
-            color: #93c5fd;
-        }
-        
         .copy-button {
             display: inline-flex;
             align-items: center;
@@ -58,23 +52,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-dark-bg font-sans min-h-screen p-4 text-gray-900 dark:text-gray-100">
     
-    <!-- Header Ad Banner -->
-    <div class="max-w-4xl mx-auto mb-4 text-center">
-        <div class="ad-banner">
-           <script type="text/javascript">
-	atOptions = {
-		'key' : '46925369ed067dc1f70d7ff81521da92',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
-        </div>
-    </div>
-
-    <!-- Main Header -->
+    <!-- Header -->
     <header class="max-w-4xl mx-auto mb-6 text-center">
         <div class="flex items-center justify-center space-x-3 bg-white dark:bg-dark-card p-4 rounded-xl shadow-lg">
             <svg class="w-8 h-8 text-primary-indigo" fill="currentColor" viewBox="0 0 24 24">
@@ -84,8 +62,21 @@
         </div>
     </header>
 
+    <!-- API Key Input Section -->
+    <div id="apiKeySection" class="max-w-4xl mx-auto mb-6 bg-yellow-50 dark:bg-yellow-900 p-4 rounded-xl border border-yellow-200 dark:border-yellow-700">
+        <div class="text-center">
+            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">🔑 Enter Your OpenRouter API Key</h3>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-3">Get your free API key from <a href="https://openrouter.ai/" target="_blank" class="underline font-medium">OpenRouter.ai</a></p>
+            <div class="flex gap-2">
+                <input type="password" id="apiKeyInput" placeholder="Enter your API key here..." class="flex-1 px-4 py-2 border border-yellow-300 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                <button onclick="saveApiKey()" class="bg-primary-indigo text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">Save Key</button>
+            </div>
+            <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-2">Your API key is stored locally in your browser and never shared</p>
+        </div>
+    </div>
+
     <!-- Main Application Card -->
-    <main class="max-w-4xl mx-auto bg-white dark:bg-dark-card p-6 rounded-2xl shadow-lg">
+    <main id="mainApp" class="max-w-4xl mx-auto bg-white dark:bg-dark-card p-6 rounded-2xl shadow-lg hidden">
         <p class="text-center text-gray-600 dark:text-gray-400 mb-6">Instantly generate high-ranking titles, descriptions, keywords, and hashtags for your video.</p>
         
         <form id="optimizerForm">
@@ -101,6 +92,8 @@
                         <option value="English" selected>English</option>
                         <option value="Hindi">Hindi</option>
                         <option value="Spanish">Spanish</option>
+                        <option value="German">German</option>
+                        <option value="French">French</option>
                     </select>
                 </div>
                 <div>
@@ -109,6 +102,7 @@
                         <option value="auto">Automatic (Recommended)</option>
                         <option value="deepseek/deepseek-r1">DeepSeek R1</option>
                         <option value="mistralai/mixtral-8x7b-instruct">Mixtral 8x7B</option>
+                        <option value="meta-llama/llama-3-8b-instruct">Llama 3 8B</option>
                     </select>
                 </div>
             </div>
@@ -118,7 +112,6 @@
             </button>
         </form>
 
-        <!-- Loading and Error Messages -->
         <div id="statusMessage" class="mt-4 text-center text-sm font-medium text-red-600 dark:text-red-400 hidden"></div>
         <div id="processingIndicator" class="mt-4 text-center text-primary-indigo dark:text-indigo-400 hidden">
             <svg class="animate-spin h-5 w-5 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
@@ -132,27 +125,18 @@
     <!-- Results Area -->
     <div id="results" class="max-w-4xl mx-auto mt-6 space-y-4"></div>
     
-    <!-- Footer Ad Banner -->
+    <!-- Footer Ad -->
     <div class="max-w-4xl mx-auto mt-8 mb-4 text-center">
         <div class="ad-banner">
-            <script type="text/javascript">
-	atOptions = {
-		'key' : '46925369ed067dc1f70d7ff81521da92',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
+            YouTube SEO Master - Free AI Tool
         </div>
     </div>
 
     <script>
-        // API Configuration - GitHub Pages Compatible
-        const API_KEY = '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'; 
+        // Configuration - No API Key in source code
         const BASE_URL = "https://openrouter.ai/api/v1/chat/completions";
-
+        const GITHUB_PAGES_URL = "https://gopemahendra661-gif.github.io/Youtube-SEO-Master/";
+        
         const FREE_MODELS = [
             "deepseek/deepseek-r1",
             "mistralai/mixtral-8x7b-instruct", 
@@ -160,6 +144,9 @@
         ];
         
         // DOM Elements
+        const apiKeySection = document.getElementById('apiKeySection');
+        const mainApp = document.getElementById('mainApp');
+        const apiKeyInput = document.getElementById('apiKeyInput');
         const form = document.getElementById('optimizerForm');
         const promptInput = document.getElementById('prompt');
         const generateButton = document.getElementById('generateButton');
@@ -168,6 +155,40 @@
         const loadingText = document.getElementById('loadingText');
         const statusMessage = document.getElementById('statusMessage');
         const resultsDiv = document.getElementById('results');
+
+        // Check for saved API key on load
+        function checkApiKey() {
+            const savedApiKey = localStorage.getItem('youtube_seo_api_key');
+            if (savedApiKey) {
+                apiKeySection.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                return savedApiKey;
+            }
+            return null;
+        }
+
+        // Save API key
+        function saveApiKey() {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                alert('Please enter your API key');
+                return;
+            }
+            
+            if (!apiKey.startsWith('sk-or-')) {
+                alert('Please enter a valid OpenRouter API key');
+                return;
+            }
+            
+            localStorage.setItem('youtube_seo_api_key', apiKey);
+            apiKeySection.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+        }
+
+        // Get API key securely
+        function getApiKey() {
+            return localStorage.getItem('youtube_seo_api_key');
+        }
 
         // Utility Functions
         function setAppState(isLoading, message = '') {
@@ -182,22 +203,13 @@
             }
         }
 
-        // Copy Function
-        function copyContent(text, buttonElement) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = buttonElement.innerHTML;
-                buttonElement.innerHTML = '✓ Copied!';
-                buttonElement.style.background = '#10b981';
-                
-                setTimeout(() => {
-                    buttonElement.innerHTML = originalText;
-                    buttonElement.style.background = '';
-                }, 2000);
-            });
-        }
-
-        // GitHub Pages Compatible API Call
+        // Secure API Call
         async function callApiWithRetry(model, prompt, language, retryCount = 0) {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                throw new Error('API key not found. Please refresh and enter your API key.');
+            }
+
             const systemPrompt = `You are a YouTube SEO expert. Generate SEO content in ${language} for: "${prompt}"
             
             Return ONLY JSON:
@@ -219,32 +231,27 @@
             };
 
             try {
-                console.log('API Request to:', BASE_URL);
-                
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`,
-                        'HTTP-Referer': window.location.origin,
+                        'Authorization': `Bearer ${apiKey}`,
+                        'HTTP-Referer': GITHUB_PAGES_URL,
                         'X-Title': 'YouTube SEO Master',
-                        'Origin': window.location.origin
+                        'Origin': GITHUB_PAGES_URL
                     },
-                    mode: 'cors',
                     body: JSON.stringify(payload)
                 });
 
-                console.log('Response status:', response.status);
-
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API Error:', errorText);
-                    throw new Error(`API Error: ${response.status} - ${errorText}`);
+                    if (response.status === 401) {
+                        throw new Error('Invalid API key. Please check your OpenRouter API key.');
+                    }
+                    throw new Error(`API Error: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('API Success:', data);
-
+                
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     return {
                         model: model,
@@ -257,7 +264,6 @@
             } catch (error) {
                 console.error('API Call failed:', error);
                 if (retryCount < 2) {
-                    console.log(`Retrying... (${retryCount + 1})`);
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     return callApiWithRetry(model, prompt, language, retryCount + 1);
                 }
@@ -265,7 +271,7 @@
             }
         }
 
-        // Main Function with Better Error Handling
+        // Main Function
         async function generateResponse(e) {
             e.preventDefault();
             resultsDiv.innerHTML = '';
@@ -288,15 +294,11 @@
                 let modelsToTry = selectedModel === 'auto' ? FREE_MODELS : [selectedModel];
 
                 for (const model of modelsToTry) {
-                    console.log(`Trying model: ${model}`);
                     loadingText.textContent = `Trying ${model.split('/')[1] || model}...`;
                     
                     try {
                         finalResult = await callApiWithRetry(model, userPrompt, selectedLanguage);
-                        if (finalResult) {
-                            console.log('Success with model:', model);
-                            break;
-                        }
+                        if (finalResult) break;
                     } catch (error) {
                         console.error(`Model ${model} failed:`, error);
                         continue;
@@ -304,32 +306,26 @@
                 }
 
                 if (!finalResult) {
-                    // Use fallback if all models fail
-                    console.log('All models failed, using fallback');
                     const fallbackData = createFallbackResponse(userPrompt, selectedLanguage);
                     displayResults(fallbackData, 'Fallback Generator');
                     return;
                 }
 
-                // Parse JSON response
                 let jsonContent;
                 try {
                     let cleanContent = finalResult.content.replace(/```json\s*|\s*```/g, '').trim();
                     jsonContent = JSON.parse(cleanContent);
-                    console.log('Parsed JSON successfully');
                 } catch (parseError) {
-                    console.error('JSON Parse error, using fallback:', parseError);
                     jsonContent = createFallbackResponse(userPrompt, selectedLanguage);
                 }
 
                 displayResults(jsonContent, finalResult.model);
 
             } catch (error) {
-                console.error('Generation error:', error);
+                console.error('Error:', error);
                 statusMessage.textContent = "Error: " + error.message;
                 statusMessage.classList.remove('hidden');
                 
-                // Show fallback content on error
                 const fallbackData = createFallbackResponse(userPrompt, selectedLanguage);
                 displayResults(fallbackData, 'Fallback Generator');
             } finally {
@@ -337,19 +333,26 @@
             }
         }
 
-        // Fallback response
+        // Fallback content generator
         function createFallbackResponse(prompt, language) {
+            if (language === 'Hindi') {
+                return {
+                    seo_titles: `${prompt} - पूरी जानकारी, ${prompt} सीखें हिंदी में, ${prompt} ट्यूटोरियल`,
+                    description: `इस वीडियो में हम ${prompt} के बारे में पूरी जानकारी देंगे। स्टेप बाय स्टेप सीखें और प्रोफेशनल टिप्स जानें।\n\nवीडियो पसंद आए तो LIKE 👍 करें और CHANNEL SUBSCRIBE 🔔 करें!\n\n#${prompt.replace(/\s+/g, '')} #ट्यूटोरियल #हिंदी`,
+                    hashtags: `#${prompt.replace(/\s+/g, '')}, #YouTube, #ट्यूटोरियल, #हिंदी`,
+                    keywords: `${prompt}, हिंदी ट्यूटोरियल, सीखें, गाइड, टिप्स`
+                };
+            }
+            
             return {
-                seo_titles: `${prompt} - Complete Guide, How to ${prompt} - Step by Step, ${prompt} Tutorial 2024`,
-                description: `Welcome to our channel! In this video, we cover everything about ${prompt}. Learn professional techniques and best practices.\n\nWhat you'll learn:\n• Introduction to ${prompt}\n• Step-by-step process\n• Tips and tricks\n• Common mistakes to avoid\n\nDon't forget to LIKE 👍, SUBSCRIBE 🔔, and hit the NOTIFICATION BELL!\n\nConnect with us:\n[Your Social Media Links]\n\n#${prompt.replace(/\s+/g, '')} #YouTubeTips #HowTo`,
-                hashtags: `#${prompt.replace(/\s+/g, '')}, #YouTube, #Tutorial, #HowTo, #Tips, #2024`,
-                keywords: `${prompt}, youtube tutorial, how to, step by step, guide, tips, tricks, 2024`
+                seo_titles: `${prompt} - Complete Guide, How to ${prompt} - Step by Step, ${prompt} Tutorial`,
+                description: `In this video, we cover everything about ${prompt}. Learn professional techniques and best practices.\n\nDon't forget to LIKE 👍 and SUBSCRIBE 🔔!\n\n#${prompt.replace(/\s+/g, '')} #Tutorial #HowTo`,
+                hashtags: `#${prompt.replace(/\s+/g, '')}, #YouTube, #Tutorial, #HowTo`,
+                keywords: `${prompt}, tutorial, how to, guide, tips`
             };
         }
 
         function displayResults(data, modelUsed) {
-            console.log('Displaying results:', data);
-            
             const seoTitles = data.seo_titles || 'No titles generated';
             const description = data.description || 'No description generated';
             const hashtags = data.hashtags || 'No hashtags generated';
@@ -359,14 +362,8 @@
                 <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border-2 border-green-500">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">✅ YouTube SEO Content Generated!</h2>
                     
-                    <!-- SEO Titles -->
-                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl border border-blue-200 dark:border-blue-800">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-bold text-lg text-blue-600 dark:text-blue-400">✨ SEO Title Suggestions</h3>
-                            <button class="copy-button" onclick="copyContent('${seoTitles.replace(/'/g, "\\'")}', this)">
-                                Copy All
-                            </button>
-                        </div>
+                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl">
+                        <h3 class="font-bold text-lg text-blue-600 dark:text-blue-400 mb-3">✨ SEO Title Suggestions</h3>
                         <div class="flex flex-wrap gap-2">
                             ${seoTitles.split(',').map(title => 
                                 `<span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm px-3 py-1 rounded-lg">${title.trim()}</span>`
@@ -374,27 +371,15 @@
                         </div>
                     </div>
                     
-                    <!-- Description -->
-                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl border border-green-200 dark:border-green-800">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-bold text-lg text-green-600 dark:text-green-400">📝 Video Description</h3>
-                            <button class="copy-button" onclick="copyContent('${description.replace(/'/g, "\\'")}', this)">
-                                Copy All
-                            </button>
-                        </div>
+                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl">
+                        <h3 class="font-bold text-lg text-green-600 dark:text-green-400 mb-3">📝 Video Description</h3>
                         <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                             <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${description}</p>
                         </div>
                     </div>
                     
-                    <!-- Keywords -->
-                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl border border-purple-200 dark:border-purple-800">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-bold text-lg text-purple-600 dark:text-purple-400">🏷️ Keywords & Tags</h3>
-                            <button class="copy-button" onclick="copyContent('${keywords.replace(/'/g, "\\'")}', this)">
-                                Copy All
-                            </button>
-                        </div>
+                    <div class="mb-6 p-4 bg-white dark:bg-dark-card rounded-xl">
+                        <h3 class="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">🏷️ Keywords & Tags</h3>
                         <div class="flex flex-wrap gap-2">
                             ${keywords.split(',').map(keyword => 
                                 `<span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm px-3 py-1 rounded-lg">${keyword.trim()}</span>`
@@ -402,14 +387,8 @@
                         </div>
                     </div>
                     
-                    <!-- Hashtags -->
-                    <div class="p-4 bg-white dark:bg-dark-card rounded-xl border border-pink-200 dark:border-pink-800">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-bold text-lg text-pink-600 dark:text-pink-400">#️⃣ Hashtags</h3>
-                            <button class="copy-button" onclick="copyContent('${hashtags.replace(/'/g, "\\'")}', this)">
-                                Copy All
-                            </button>
-                        </div>
+                    <div class="p-4 bg-white dark:bg-dark-card rounded-xl">
+                        <h3 class="font-bold text-lg text-pink-600 dark:text-pink-400 mb-3">#️⃣ Hashtags</h3>
                         <div class="flex flex-wrap gap-2">
                             ${hashtags.split(',').map(hashtag => 
                                 `<span class="inline-block bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 text-sm px-3 py-1 rounded-lg">${hashtag.trim()}</span>`
@@ -420,7 +399,7 @@
                     <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-xl text-center">
                         <p class="text-sm text-yellow-800 dark:text-yellow-200">
                             *AI-Generated Content - Please review before use<br>
-                            <span class="font-mono text-primary-indigo dark:text-primary-purple">Model: ${modelUsed}</span>
+                            <span class="font-mono">Model: ${modelUsed}</span>
                         </p>
                     </div>
                 </div>
@@ -429,11 +408,36 @@
             resultsDiv.innerHTML = outputHTML;
         }
 
+        // Copy function
+        function copyContent(text, buttonElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = buttonElement.innerHTML;
+                buttonElement.innerHTML = '✓ Copied!';
+                buttonElement.style.background = '#10b981';
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalText;
+                    buttonElement.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Clear API key (for testing)
+        function clearApiKey() {
+            localStorage.removeItem('youtube_seo_api_key');
+            location.reload();
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiKey();
+        });
+
         // Event Listeners
         form.addEventListener('submit', generateResponse);
         window.copyContent = copyContent;
+        window.clearApiKey = clearApiKey; // For debugging
 
-        console.log('YouTube SEO Master loaded - GitHub Pages Version');
+        console.log('YouTube SEO Master - Secure Version Loaded');
     </script>
 </body>
 </html>
