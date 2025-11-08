@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube SEO Master - AI Powered SEO Tool</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,7 +15,6 @@
                     },
                     colors: {
                         'primary-indigo': '#4f46e5',
-                        'primary-purple': '#7c3aed',
                         'dark-bg': '#0f172a',
                         'dark-card': '#1e293b',
                     }
@@ -63,17 +61,16 @@
     <!-- Header Ad Banner -->
     <div class="max-w-4xl mx-auto mb-4 text-center">
         <div class="ad-banner">
-            <!-- Header Ad (320x50) -->
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '46925369ed067dc1f70d7ff81521da92',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
+           <script type="text/javascript">
+	atOptions = {
+		'key' : '46925369ed067dc1f70d7ff81521da92',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
         </div>
     </div>
 
@@ -138,22 +135,21 @@
     <!-- Footer Ad Banner -->
     <div class="max-w-4xl mx-auto mt-8 mb-4 text-center">
         <div class="ad-banner">
-            <!-- Footer Ad (320x50) -->
             <script type="text/javascript">
-                atOptions = {
-                    'key' : '46925369ed067dc1f70d7ff81521da92',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
+	atOptions = {
+		'key' : '46925369ed067dc1f70d7ff81521da92',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/46925369ed067dc1f70d7ff81521da92/invoke.js"></script>
         </div>
     </div>
 
     <script>
-        // API Configuration
+        // API Configuration - GitHub Pages Compatible
         const API_KEY = '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'; 
         const BASE_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -200,16 +196,15 @@
             });
         }
 
-        // Simple API Call - Debug Version
+        // GitHub Pages Compatible API Call
         async function callApiWithRetry(model, prompt, language, retryCount = 0) {
-            // Simple system prompt
-            const systemPrompt = `You are a YouTube SEO expert. Generate SEO content in ${language} for this topic: "${prompt}"
+            const systemPrompt = `You are a YouTube SEO expert. Generate SEO content in ${language} for: "${prompt}"
             
-            Return ONLY this JSON format:
+            Return ONLY JSON:
             {
                 "seo_titles": "Title 1, Title 2, Title 3",
                 "description": "Full description here...",
-                "hashtags": "#tag1, #tag2, #tag3",
+                "hashtags": "#tag1, #tag2, #tag3", 
                 "keywords": "keyword1, keyword2, keyword3"
             }`;
             
@@ -217,40 +212,43 @@
                 model: model,
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: `Generate YouTube SEO content for: ${prompt}` }
+                    { role: "user", content: `Generate YouTube SEO for: ${prompt}` }
                 ],
                 temperature: 0.7,
                 max_tokens: 1500
             };
 
             try {
-                console.log('Sending API request...', { model, prompt: prompt.substring(0, 50) + '...' });
+                console.log('API Request to:', BASE_URL);
                 
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${API_KEY}`,
-                        'HTTP-Referer': window.location.origin
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'YouTube SEO Master',
+                        'Origin': window.location.origin
                     },
+                    mode: 'cors',
                     body: JSON.stringify(payload)
                 });
 
-                console.log('API Response status:', response.status);
+                console.log('Response status:', response.status);
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error(`API Error: ${response.status} - ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log('API Response data:', data);
+                console.log('API Success:', data);
 
                 if (data.choices && data.choices[0] && data.choices[0].message) {
-                    const content = data.choices[0].message.content;
-                    console.log('API Response content:', content);
                     return {
                         model: model,
-                        content: content
+                        content: data.choices[0].message.content
                     };
                 }
                 
@@ -267,7 +265,7 @@
             }
         }
 
-        // Main Function
+        // Main Function with Better Error Handling
         async function generateResponse(e) {
             e.preventDefault();
             resultsDiv.innerHTML = '';
@@ -285,17 +283,20 @@
 
             setAppState(true, `Generating content in ${selectedLanguage}...`);
 
-            let finalResult = null;
-            let modelsToTry = selectedModel === 'auto' ? FREE_MODELS : [selectedModel];
-
             try {
+                let finalResult = null;
+                let modelsToTry = selectedModel === 'auto' ? FREE_MODELS : [selectedModel];
+
                 for (const model of modelsToTry) {
                     console.log(`Trying model: ${model}`);
                     loadingText.textContent = `Trying ${model.split('/')[1] || model}...`;
                     
                     try {
                         finalResult = await callApiWithRetry(model, userPrompt, selectedLanguage);
-                        if (finalResult) break;
+                        if (finalResult) {
+                            console.log('Success with model:', model);
+                            break;
+                        }
                     } catch (error) {
                         console.error(`Model ${model} failed:`, error);
                         continue;
@@ -303,50 +304,52 @@
                 }
 
                 if (!finalResult) {
-                    throw new Error("All models failed. Please try again.");
+                    // Use fallback if all models fail
+                    console.log('All models failed, using fallback');
+                    const fallbackData = createFallbackResponse(userPrompt, selectedLanguage);
+                    displayResults(fallbackData, 'Fallback Generator');
+                    return;
                 }
 
-                console.log('Final result:', finalResult);
-
-                // Try to parse JSON response
+                // Parse JSON response
                 let jsonContent;
                 try {
-                    // Clean the response - remove any markdown code blocks
                     let cleanContent = finalResult.content.replace(/```json\s*|\s*```/g, '').trim();
                     jsonContent = JSON.parse(cleanContent);
-                    console.log('Parsed JSON:', jsonContent);
+                    console.log('Parsed JSON successfully');
                 } catch (parseError) {
-                    console.error('JSON Parse error:', parseError);
-                    // If JSON parsing fails, create a fallback response
+                    console.error('JSON Parse error, using fallback:', parseError);
                     jsonContent = createFallbackResponse(userPrompt, selectedLanguage);
                 }
 
-                // Display results
                 displayResults(jsonContent, finalResult.model);
 
             } catch (error) {
                 console.error('Generation error:', error);
                 statusMessage.textContent = "Error: " + error.message;
                 statusMessage.classList.remove('hidden');
+                
+                // Show fallback content on error
+                const fallbackData = createFallbackResponse(userPrompt, selectedLanguage);
+                displayResults(fallbackData, 'Fallback Generator');
             } finally {
                 setAppState(false);
             }
         }
 
-        // Fallback response if API fails
+        // Fallback response
         function createFallbackResponse(prompt, language) {
             return {
-                seo_titles: `${prompt} - Ultimate Guide, How to ${prompt} - Complete Tutorial, ${prompt} Tips and Tricks`,
-                description: `In this video, we explore ${prompt} in detail. Learn everything you need to know about ${prompt} with step-by-step instructions and professional tips.\n\nTimestamps:\n0:00 Introduction\n1:30 Getting Started\n3:45 Main Content\n8:20 Advanced Tips\n12:00 Conclusion\n\nFollow us on social media for more content!\n\n#${prompt.replace(/\s+/g, '')} #YouTubeTips #Tutorial`,
-                hashtags: `#${prompt.replace(/\s+/g, '')}, #YouTubeSEO, #ContentCreation, #VideoMarketing, #Tutorial`,
-                keywords: `${prompt}, youtube seo, video optimization, content creation, social media marketing, digital marketing`
+                seo_titles: `${prompt} - Complete Guide, How to ${prompt} - Step by Step, ${prompt} Tutorial 2024`,
+                description: `Welcome to our channel! In this video, we cover everything about ${prompt}. Learn professional techniques and best practices.\n\nWhat you'll learn:\n• Introduction to ${prompt}\n• Step-by-step process\n• Tips and tricks\n• Common mistakes to avoid\n\nDon't forget to LIKE 👍, SUBSCRIBE 🔔, and hit the NOTIFICATION BELL!\n\nConnect with us:\n[Your Social Media Links]\n\n#${prompt.replace(/\s+/g, '')} #YouTubeTips #HowTo`,
+                hashtags: `#${prompt.replace(/\s+/g, '')}, #YouTube, #Tutorial, #HowTo, #Tips, #2024`,
+                keywords: `${prompt}, youtube tutorial, how to, step by step, guide, tips, tricks, 2024`
             };
         }
 
         function displayResults(data, modelUsed) {
             console.log('Displaying results:', data);
             
-            // Ensure we have data for all fields
             const seoTitles = data.seo_titles || 'No titles generated';
             const description = data.description || 'No description generated';
             const hashtags = data.hashtags || 'No hashtags generated';
@@ -430,8 +433,7 @@
         form.addEventListener('submit', generateResponse);
         window.copyContent = copyContent;
 
-        // Add console logging for debugging
-        console.log('YouTube SEO Tool loaded successfully');
+        console.log('YouTube SEO Master loaded - GitHub Pages Version');
     </script>
 </body>
 </html>
